@@ -1,0 +1,80 @@
+plugins {
+    id 'groovy'
+    id 'idea'
+    id 'signing'
+    id 'maven'
+    id 'com.gradle.plugin-publish' version '0.9.7'
+}
+
+version = '1.0.1-alpha'
+group = 'net.intellisun'
+description = 'Gradle plugin to manage minecraft dependencies'
+archivesBaseName = 'moddependencies'
+
+ext.url = 'https://github.com/IntelliSun-MC/modDependencies'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+}
+
+jar.manifest.mainAttributes([
+	'Implementation-Title'  : project.name,
+	'Implementation-Version': project.version
+])
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+assemble.dependsOn javadocJar, sourcesJar
+
+[compileJava, compileGroovy].each {
+    it.options.encoding = 'UTF-8'
+    it.options.deprecation = true
+    it.options.fork = true
+}
+
+// signing {
+//     sign configurations.archives
+// }
+
+pluginBundle {
+    website = project.url
+    vcsUrl = 'git://github.com/IntelliSun-MC/modDependencies.git'
+    plugins {
+        mcModDependenciesPlugin {
+            id = 'net.intellisun.moddependencies'
+            description = project.description
+            displayName = 'ModDependencies'
+            version = project.version
+            tags = ['dependencies', 'minecraft']
+        }
+    }
+}
+
+task release {
+    // dependsOn uploadArchives
+    if (!project.version.endsWith('-SNAPSHOT')) {
+        dependsOn publishPlugins
+    }
+}
