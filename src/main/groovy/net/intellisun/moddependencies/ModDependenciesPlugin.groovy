@@ -42,6 +42,6 @@ class ModDependenciesPlugin implements Plugin<Project> {
 			.findAll { dep -> dep.runtimeDependency != null && dep.shouldLoadForBuild }
 			.collect { dep -> dep.runtimeDependency.toDependencyString() }
 			
-		project.ext.dependencyString = String.join(',', runtimeDeps)
+		project.ext.dependencyString = String.join(';', runtimeDeps)
 	}
 }
